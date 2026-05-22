@@ -2,6 +2,7 @@ package com.example.ui.screens
 
 import android.widget.Toast
 import androidx.compose.animation.*
+import com.example.util.LocalizationManager
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -31,6 +32,7 @@ import com.example.ui.viewmodel.QuranAudioViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LibrarySectionView(viewModel: QuranAudioViewModel) {
+    val langState by LocalizationManager.currentLanguage.collectAsState()
     val favorites by viewModel.favorites.collectAsState()
     val playlists by viewModel.playlists.collectAsState()
     val musicFiles by viewModel.musicFiles.collectAsState()
@@ -53,13 +55,13 @@ fun LibrarySectionView(viewModel: QuranAudioViewModel) {
         if (activeSubView == "menu") {
             // Main Dashboard Navigation Row Cards
             Text(
-                text = "Library Management",
+                text = LocalizationManager.get("library_management"),
                 color = PureWhite,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "Classified audio indexes stored in local DB",
+                text = LocalizationManager.get("library_subtitle"),
                 color = LightGrayText,
                 fontSize = 12.sp
             )
@@ -71,8 +73,8 @@ fun LibrarySectionView(viewModel: QuranAudioViewModel) {
             ) {
                 // Favorites Row Card
                 LibraryRowItem(
-                    label = "Favorites (المفضلة)",
-                    subLabel = "${favorites.size} Saved Tracks",
+                    label = LocalizationManager.get("favorites_title"),
+                    subLabel = String.format(LocalizationManager.get("favorites_sub"), favorites.size.toString()),
                     icon = Icons.Default.Favorite,
                     iconColor = QuranPrimary,
                     onClick = { activeSubView = "favorites" }
@@ -80,8 +82,8 @@ fun LibrarySectionView(viewModel: QuranAudioViewModel) {
 
                 // Playlists Row Card
                 LibraryRowItem(
-                    label = "Playlists",
-                    subLabel = "${playlists.size} Custom Playlists",
+                    label = LocalizationManager.get("playlists_title"),
+                    subLabel = String.format(LocalizationManager.get("playlists_sub"), playlists.size.toString()),
                     icon = Icons.Default.QueueMusic,
                     iconColor = DynamicGold,
                     onClick = { activeSubView = "playlists" }
@@ -89,7 +91,7 @@ fun LibrarySectionView(viewModel: QuranAudioViewModel) {
 
                 // Separator
                 Text(
-                    text = "Separated Non-Quran Files",
+                    text = LocalizationManager.get("non_quran_divider"),
                     color = LightGrayText,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
@@ -98,8 +100,8 @@ fun LibrarySectionView(viewModel: QuranAudioViewModel) {
 
                 // Music Files Row Card
                 LibraryRowItem(
-                    label = "Music Section (الملفات الموسيقية)",
-                    subLabel = "${musicFiles.size} Songs Detected",
+                    label = LocalizationManager.get("music_section"),
+                    subLabel = String.format(LocalizationManager.get("music_sub"), musicFiles.size.toString()),
                     icon = Icons.Default.MusicNote,
                     iconColor = QuranSecondary,
                     onClick = { activeSubView = "music" }
@@ -107,8 +109,8 @@ fun LibrarySectionView(viewModel: QuranAudioViewModel) {
 
                 // Lectures Row Card
                 LibraryRowItem(
-                    label = "Islamic Lectures & Talks",
-                    subLabel = "${lectureFiles.size} Files Classified",
+                    label = LocalizationManager.get("lectures_section"),
+                    subLabel = String.format(LocalizationManager.get("lectures_sub"), lectureFiles.size.toString()),
                     icon = Icons.Default.RecordVoiceOver,
                     iconColor = Color(0xFF60A5FA),
                     onClick = { activeSubView = "lectures" }
@@ -116,8 +118,8 @@ fun LibrarySectionView(viewModel: QuranAudioViewModel) {
 
                 // Others Row Card
                 LibraryRowItem(
-                    label = "Other Files (ملفات أخرى)",
-                    subLabel = "${otherFiles.size} Voice Memos / Static",
+                    label = LocalizationManager.get("other_section"),
+                    subLabel = String.format(LocalizationManager.get("other_sub"), otherFiles.size.toString()),
                     icon = Icons.Default.FolderOpen,
                     iconColor = LightGrayText,
                     onClick = { activeSubView = "other" }
@@ -137,7 +139,7 @@ fun LibrarySectionView(viewModel: QuranAudioViewModel) {
             ) {
                 Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = QuranPrimary)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Back to Library Dashboard", color = QuranPrimary, fontWeight = FontWeight.Bold)
+                Text(LocalizationManager.get("back_library"), color = QuranPrimary, fontWeight = FontWeight.Bold)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -145,10 +147,10 @@ fun LibrarySectionView(viewModel: QuranAudioViewModel) {
             // Subscreen layouts
             when (activeSubView) {
                 "favorites" -> {
-                    Text("Favorites (${favorites.size})", color = PureWhite, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Text("${LocalizationManager.get("favorites_title")} (${favorites.size})", color = PureWhite, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(12.dp))
                     if (favorites.isEmpty()) {
-                        EmptyStateBlock("No favorites added yet.")
+                        EmptyStateBlock(LocalizationManager.get("no_favorites"))
                     } else {
                         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             items(favorites) { track ->
@@ -171,14 +173,14 @@ fun LibrarySectionView(viewModel: QuranAudioViewModel) {
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("Playlists (${playlists.size})", color = PureWhite, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                            Text("${LocalizationManager.get("playlists_title")} (${playlists.size})", color = PureWhite, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                             IconButton(onClick = { showCreatePlaylistDialog = true }) {
                                 Icon(Icons.AutoMirrored.Default.PlaylistAdd, contentDescription = "Create", tint = QuranPrimary, modifier = Modifier.size(28.dp))
                             }
                         }
                         Spacer(modifier = Modifier.height(12.dp))
                         if (playlists.isEmpty()) {
-                            EmptyStateBlock("Create custom playlists to organize your audios.")
+                            EmptyStateBlock(LocalizationManager.get("create_playlist_desc"))
                         } else {
                             LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                                 items(playlists) { pl ->
@@ -223,18 +225,18 @@ fun LibrarySectionView(viewModel: QuranAudioViewModel) {
                         ) {
                             Column {
                                 Text(selectedPlaylistForDetail!!.name, color = PureWhite, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                                Text("${playlistTracksState.value.size} tracks inside", color = LightGrayText, fontSize = 12.sp)
+                                Text(String.format(LocalizationManager.get("offline_files_count"), playlistTracksState.value.size), color = LightGrayText, fontSize = 12.sp)
                             }
                             Button(
                                 onClick = { selectedPlaylistForDetail = null },
                                 colors = ButtonDefaults.buttonColors(containerColor = QuranSurface)
                             ) {
-                                Text("Back", color = PureWhite)
+                                Text(LocalizationManager.get("back"), color = PureWhite)
                             }
                         }
                         Spacer(modifier = Modifier.height(14.dp))
                         if (playlistTracksState.value.isEmpty()) {
-                            EmptyStateBlock("This playlist is empty.")
+                            EmptyStateBlock(LocalizationManager.get("playlist_empty"))
                         } else {
                             LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                 items(playlistTracksState.value) { track ->
@@ -253,7 +255,7 @@ fun LibrarySectionView(viewModel: QuranAudioViewModel) {
                                         }
                                         IconButton(onClick = {
                                             viewModel.removeTrackFromPlaylist(selectedPlaylistForDetail!!.id, track.filePath)
-                                            Toast.makeText(context, "Track removed", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, LocalizationManager.get("track_removed"), Toast.LENGTH_SHORT).show()
                                         }) {
                                             Icon(Icons.Default.RemoveCircleOutline, contentDescription = "Remove", tint = ContrastAccent)
                                         }
@@ -264,10 +266,10 @@ fun LibrarySectionView(viewModel: QuranAudioViewModel) {
                     }
                 }
                 "music" -> {
-                    Text("Music Library (الموسيقى)", color = PureWhite, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Text(LocalizationManager.get("music_section"), color = PureWhite, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(12.dp))
                     if (musicFiles.isEmpty()) {
-                        EmptyStateBlock("No music tracks detected.")
+                        EmptyStateBlock(LocalizationManager.get("no_music"))
                     } else {
                         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             items(musicFiles) { track ->
@@ -283,10 +285,10 @@ fun LibrarySectionView(viewModel: QuranAudioViewModel) {
                     }
                 }
                 "lectures" -> {
-                    Text("Islamic Lectures & Sermons", color = PureWhite, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Text(LocalizationManager.get("lectures_section"), color = PureWhite, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(12.dp))
                     if (lectureFiles.isEmpty()) {
-                        EmptyStateBlock("No lectures classified yet.")
+                        EmptyStateBlock(LocalizationManager.get("no_lectures"))
                     } else {
                         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             items(lectureFiles) { track ->
@@ -302,10 +304,10 @@ fun LibrarySectionView(viewModel: QuranAudioViewModel) {
                     }
                 }
                 "other" -> {
-                    Text("Other Audio Files", color = PureWhite, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Text(LocalizationManager.get("other_section"), color = PureWhite, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(12.dp))
                     if (otherFiles.isEmpty()) {
-                        EmptyStateBlock("No other audio files detected.")
+                        EmptyStateBlock(LocalizationManager.get("no_other_files"))
                     } else {
                         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             items(otherFiles) { track ->
@@ -346,13 +348,13 @@ fun LibrarySectionView(viewModel: QuranAudioViewModel) {
         AlertDialog(
             onDismissRequest = { showCreatePlaylistDialog = false },
             containerColor = QuranSurface,
-            title = { Text("Create New Playlist", color = PureWhite, fontWeight = FontWeight.Bold) },
+            title = { Text(LocalizationManager.get("create_playlist"), color = PureWhite, fontWeight = FontWeight.Bold) },
             text = {
                 Column {
                     OutlinedTextField(
                         value = playlistName,
                         onValueChange = { playlistName = it },
-                        label = { Text("Playlist Name") },
+                        label = { Text(LocalizationManager.get("title_hint")) },
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = QuranPrimary,
                             unfocusedBorderColor = LightGrayText,
@@ -365,7 +367,7 @@ fun LibrarySectionView(viewModel: QuranAudioViewModel) {
                     OutlinedTextField(
                         value = playlistDesc,
                         onValueChange = { playlistDesc = it },
-                        label = { Text("Description (Optional)") },
+                        label = { Text(LocalizationManager.get("desc_hint")) },
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = QuranPrimary,
                             unfocusedBorderColor = LightGrayText,
@@ -388,12 +390,12 @@ fun LibrarySectionView(viewModel: QuranAudioViewModel) {
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = QuranPrimary)
                 ) {
-                    Text("Create", color = Color.Black)
+                    Text(LocalizationManager.get("save"), color = Color.Black)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showCreatePlaylistDialog = false }) {
-                    Text("Cancel", color = LightGrayText)
+                    Text(LocalizationManager.get("cancel"), color = LightGrayText)
                 }
             },
             shape = RoundedCornerShape(20.dp)

@@ -23,7 +23,7 @@ class AudioEffectManager {
             equalizer = Equalizer(0, audioSessionId).apply {
                 enabled = true
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             Log.e("AudioEffectManager", "Failed to initialize Equalizer effect", e)
         }
 
@@ -32,7 +32,7 @@ class AudioEffectManager {
             bassBoost = BassBoost(0, audioSessionId).apply {
                 enabled = true
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             Log.e("AudioEffectManager", "Failed to initialize BassBoost effect", e)
         }
 
@@ -41,7 +41,7 @@ class AudioEffectManager {
             reverb = PresetReverb(0, audioSessionId).apply {
                 enabled = true
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             Log.e("AudioEffectManager", "Failed to initialize PresetReverb effect", e)
         }
     }
@@ -51,7 +51,7 @@ class AudioEffectManager {
             equalizer?.release()
             bassBoost?.release()
             reverb?.release()
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             Log.e("AudioEffectManager", "Error releasing effects", e)
         } finally {
             equalizer = null
@@ -65,7 +65,7 @@ class AudioEffectManager {
             if (bassBoost?.strengthSupported == true) {
                 bassBoost?.setStrength(strength)
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             e.printStackTrace()
         }
     }
@@ -79,7 +79,7 @@ class AudioEffectManager {
             if (preset in 0..6) {
                 reverb?.preset = preset
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             e.printStackTrace()
         }
     }
@@ -87,7 +87,7 @@ class AudioEffectManager {
     fun setEqualizerBandValue(band: Short, value: Short) {
         try {
             equalizer?.setBandLevel(band, value)
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             e.printStackTrace()
         }
     }
@@ -127,7 +127,7 @@ class AudioEffectManager {
                 setReverbPreset(0) // No Reverb
                 setBassBoostStrength(0)
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             Log.e("AudioEffectManager", "Fail setting Quran Enhance Mode", e)
         }
     }

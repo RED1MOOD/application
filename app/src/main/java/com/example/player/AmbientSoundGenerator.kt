@@ -20,6 +20,7 @@ object AmbientSoundGenerator {
         isPlaying = true
 
         synthJob = scope.launch {
+            var track: AudioTrack? = null
             try {
                 val sampleRate = 22050
                 val minBufferSize = AudioTrack.getMinBufferSize(
@@ -28,7 +29,7 @@ object AmbientSoundGenerator {
                     AudioFormat.ENCODING_PCM_16BIT
                 )
 
-                val track = AudioTrack(
+                track = AudioTrack(
                     AudioManager.STREAM_MUSIC,
                     sampleRate,
                     AudioFormat.CHANNEL_OUT_MONO,
@@ -58,10 +59,22 @@ object AmbientSoundGenerator {
                         buffer[i] = sample
                         phase += 1.0
                     }
-                    track.write(buffer, 0, bufferSize)
+                    if (isPlaying && isActive) {
+                        track.write(buffer, 0, bufferSize)
+                    }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
+            } finally {
+                try {
+                    track?.stop()
+                    track?.release()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+                if (audioTrack == track) {
+                    audioTrack = null
+                }
             }
         }
     }
@@ -70,13 +83,5 @@ object AmbientSoundGenerator {
         isPlaying = false
         synthJob?.cancel()
         synthJob = null
-        try {
-            audioTrack?.stop()
-            audioTrack?.release()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        } finally {
-            audioTrack = null
-        }
     }
 }

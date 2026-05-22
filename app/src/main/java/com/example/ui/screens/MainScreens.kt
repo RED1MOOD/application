@@ -51,6 +51,7 @@ import com.example.data.model.Playlist
 import com.example.editor.AudioEditorUtility
 import com.example.player.AudioPlayerController
 import com.example.ui.theme.*
+import com.example.util.Language
 import com.example.util.LocalizationManager
 import com.example.ui.viewmodel.QuranAudioViewModel
 import kotlinx.coroutines.delay
@@ -80,6 +81,60 @@ fun MainAppContainer(viewModel: QuranAudioViewModel) {
         SplashScreenPresenter()
     } else {
         Scaffold(
+            topBar = {
+                val isMainTab = currentTab in listOf("home", "quran", "library")
+                CenterAlignedTopAppBar(
+                    title = {
+                        Text(
+                            text = if (langState == Language.AR) "الأثير القرآني" else "Quranic Ether",
+                            color = PureWhite,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
+                        )
+                    },
+                    navigationIcon = {
+                        if (!isMainTab) {
+                            IconButton(onClick = { currentTab = "home" }) {
+                                Icon(
+                                    imageVector = Icons.Default.ArrowBack,
+                                    contentDescription = "Back",
+                                    tint = PureWhite
+                                )
+                            }
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.Stars,
+                                contentDescription = "Logo",
+                                tint = DynamicGold,
+                                modifier = Modifier.padding(start = 12.dp).size(22.dp)
+                            )
+                        }
+                    },
+                    actions = {
+                        if (isMainTab) {
+                            IconButton(onClick = { currentTab = "search" }) {
+                                Icon(
+                                    imageVector = Icons.Default.Search,
+                                    contentDescription = "Search",
+                                    tint = PureWhite
+                                )
+                            }
+                            IconButton(onClick = { currentTab = "settings" }) {
+                                Icon(
+                                    imageVector = Icons.Default.Settings,
+                                    contentDescription = "Settings",
+                                    tint = PureWhite
+                                )
+                            }
+                        }
+                    },
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = Color(0xFF030508),
+                        titleContentColor = PureWhite
+                    )
+                )
+            },
             bottomBar = {
                 Column {
                     // Persistent Mini Player above the bottom bar
@@ -112,10 +167,7 @@ fun MainAppContainer(viewModel: QuranAudioViewModel) {
                         val tabs = listOf(
                             Triple("home", LocalizationManager.get("home"), Icons.Default.Home),
                             Triple("quran", LocalizationManager.get("quran"), Icons.Default.MenuBook),
-                            Triple("online", LocalizationManager.get("online"), Icons.Default.Cloud),
-                            Triple("search", LocalizationManager.get("search"), Icons.Default.Search),
-                            Triple("library", LocalizationManager.get("library"), Icons.Default.LibraryMusic),
-                            Triple("settings", LocalizationManager.get("settings"), Icons.Default.Settings)
+                            Triple("library", LocalizationManager.get("library"), Icons.Default.LibraryMusic)
                         )
 
                         tabs.forEach { (tabId, label, icon) ->
@@ -186,7 +238,7 @@ fun MainAppContainer(viewModel: QuranAudioViewModel) {
                     label = "tab_crossfade"
                 ) { targetState ->
                     when (targetState) {
-                        "home" -> HomeScreenView(viewModel, onNavigateToTab = { currentTab = it })
+                        "home" -> HomeScreenView(viewModel, onNavigateToTab = { currentTab = it }, onExpandPlayer = { activeFullPlayer = true })
                         "quran" -> QuranSectionView(viewModel)
                         "online" -> OnlineSectionView(viewModel)
                         "search" -> SearchSectionView(viewModel)

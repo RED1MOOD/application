@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.AudioFile
+import com.example.player.AudioPlayerController
 import com.example.util.Language
 import com.example.util.LocalizationManager
 import com.example.ui.theme.*
@@ -212,6 +213,28 @@ val onlineQaris = listOf(
         gradientColors = listOf(Color(0xFF134E5E), Color(0xFF71B280)),
         locationAr = "المملكة العربية السعودية",
         locationEn = "Saudi Arabia",
+        categoryAr = "أشهر الأصوات العذبة بالوطن الإسلامي",
+        categoryEn = "Beautiful Voices of the Islamic World"
+    ),
+    OnlineQari(
+        id = "bin_talib",
+        arabicName = "أحمد بن طالب بن حميد",
+        englishName = "Ahmed bin Talib bin Hameed",
+        serverUrl = "https://server11.mp3quran.net/qmh",
+        gradientColors = listOf(Color(0xFF047857), Color(0xFF10B981)),
+        locationAr = "المسجد النبوي الشريف",
+        locationEn = "Al-Masjid Al-Nabawi",
+        categoryAr = "أئمة وقراء الحرمين الشريفين",
+        categoryEn = "Imams of the Two Holy Mosques"
+    ),
+    OnlineQari(
+        id = "mossad",
+        arabicName = "عبد الرحمن مسعد",
+        englishName = "Abdul Rahman Mossad",
+        serverUrl = "https://server16.mp3quran.net/abdr",
+        gradientColors = listOf(Color(0xFF3B82F6), Color(0xFF60A5FA)),
+        locationAr = "جمهورية مصر العربية",
+        locationEn = "Egypt",
         categoryAr = "أشهر الأصوات العذبة بالوطن الإسلامي",
         categoryEn = "Beautiful Voices of the Islamic World"
     )
@@ -436,6 +459,94 @@ fun OnlineSectionView(viewModel: QuranAudioViewModel) {
                     .fillMaxWidth()
                     .padding(bottom = 16.dp)
             )
+
+            // Real-time live streaming connection state feedback
+            val isBuffering by AudioPlayerController.isBuffering.collectAsState()
+            val playbackError by AudioPlayerController.playbackError.collectAsState()
+            val currentTrack by AudioPlayerController.currentTrack.collectAsState()
+
+            if (isBuffering && currentTrack?.filePath?.startsWith("http") == true) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp)
+                        .clip(RoundedCornerShape(12.dp)),
+                    colors = CardDefaults.cardColors(containerColor = QuranPrimary.copy(alpha = 0.1f)),
+                    border = BorderStroke(1.dp, QuranPrimary.copy(alpha = 0.3f))
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        CircularProgressIndicator(
+                            color = QuranPrimary,
+                            strokeWidth = 2.dp,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text(
+                            text = if (langState == Language.AR) "جاري الاتصال والتشغيل الآن من خوادم البث المباشر..." else "Connecting and buffering live audio stream...",
+                            color = PureWhite,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
+            }
+
+            if (playbackError != null && currentTrack?.filePath?.startsWith("http") == true) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp)
+                        .clip(RoundedCornerShape(12.dp)),
+                    colors = CardDefaults.cardColors(containerColor = ContrastAccent.copy(alpha = 0.12f)),
+                    border = BorderStroke(1.dp, ContrastAccent.copy(alpha = 0.3f))
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.ErrorOutline,
+                                contentDescription = "Error",
+                                tint = ContrastAccent,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text(
+                                text = playbackError ?: "",
+                                color = PureWhite,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        OutlinedButton(
+                            onClick = {
+                                currentTrack?.let { viewModel.playTrack(it, listOf(it)) }
+                            },
+                            border = BorderStroke(1.dp, ContrastAccent),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = ContrastAccent),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.align(Alignment.End)
+                        ) {
+                            Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(12.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = if (langState == Language.AR) "إعادة المحاولة" else "Retry Connection",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+            }
 
             // Surah List
             LazyColumn(

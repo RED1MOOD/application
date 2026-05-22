@@ -43,6 +43,12 @@ object AudioPlayerController {
     private val _isEnhanceModeActive = MutableStateFlow(false)
     val isEnhanceModeActive: StateFlow<Boolean> = _isEnhanceModeActive.asStateFlow()
 
+    private val _isBuffering = MutableStateFlow(false)
+    val isBuffering: StateFlow<Boolean> = _isBuffering.asStateFlow()
+
+    private val _playbackError = MutableStateFlow<String?>(null)
+    val playbackError: StateFlow<String?> = _playbackError.asStateFlow()
+
     private val _sleepTimeRemaining = MutableStateFlow<Long>(0L) // in Ms
     val sleepTimeRemaining: StateFlow<Long> = _sleepTimeRemaining.asStateFlow()
 
@@ -75,6 +81,7 @@ object AudioPlayerController {
             stopPlayback()
 
             _currentTrack.value = track
+            _playbackError.value = null
             isSimulatedTrack = track.filePath.startsWith("/demo_storage")
 
             if (isSimulatedTrack) {
@@ -85,9 +92,11 @@ object AudioPlayerController {
                 startSimulationProgressLoop()
             } else if (track.filePath.startsWith("http://") || track.filePath.startsWith("https://")) {
                 // Streaming Online URL playback
+                _isBuffering.value = true
                 mediaPlayer = MediaPlayer().apply {
                     setDataSource(track.filePath)
                     setOnPreparedListener { mp ->
+                        _isBuffering.value = false
                         applyPlaybackParams()
                         effectManager.attachEffects(mp.audioSessionId)
                         val fullDuration = mp.duration.toLong()
@@ -101,14 +110,22 @@ object AudioPlayerController {
                     setOnCompletionListener {
                         next()
                     }
+                    setOnInfoListener { mp, what, extra ->
+                        when (what) {
+                            MediaPlayer.MEDIA_INFO_BUFFERING_START -> {
+                                _isBuffering.value = true
+                            }
+                            MediaPlayer.MEDIA_INFO_BUFFERING_END -> {
+                                _isBuffering.value = false
+                            }
+                        }
+                        true
+                    }
                     setOnErrorListener { mp, what, extra ->
                         Log.e("AudioPlayerController", "MediaPlayer streaming error - what: $what, extra: $extra")
-                        // Fallback to simulation if streaming fails
-                        isSimulatedTrack = true
-                        _isPlaying.value = true
-                        simulatedPosition = 0L
-                        _playbackPosition.value = 0L
-                        startSimulationProgressLoop()
+                        _isBuffering.value = false
+                        _playbackError.value = "لا يمكن الاتصال بالخادم. يرجى التحقق من الشبكة وإعادة المحاولة."
+                        _isPlaying.value = false
                         true
                     }
                     prepareAsync()
@@ -157,13 +174,18 @@ object AudioPlayerController {
 
         } catch (e: Exception) {
             Log.e("AudioPlayerController", "Error playing track: ${track.title}", e)
+            _isBuffering.value = false
             _isPlaying.value = false
-            // Fallback: If physical loading failed, play it as a simulated flow so user doesn't hit a dead end
-            isSimulatedTrack = true
-            _isPlaying.value = true
-            simulatedPosition = 0L
-            _playbackPosition.value = 0L
-            startSimulationProgressLoop()
+            if (track.filePath.startsWith("http://") || track.filePath.startsWith("https://")) {
+                _playbackError.value = "خطأ في الاتصال بالشبكة: ${e.localizedMessage ?: "فشل التشغيل"}"
+            } else {
+                // Fallback: If physical loading failed, play it as a simulated flow so user doesn't hit a dead end
+                isSimulatedTrack = true
+                _isPlaying.value = true
+                simulatedPosition = 0L
+                _playbackPosition.value = 0L
+                startSimulationProgressLoop()
+            }
         }
     }
 

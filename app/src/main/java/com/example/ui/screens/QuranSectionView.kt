@@ -2,6 +2,7 @@ package com.example.ui.screens
 
 import androidx.compose.animation.*
 import androidx.compose.foundation.*
+import com.example.util.LocalizationManager
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -25,6 +26,7 @@ import com.example.ui.viewmodel.QuranAudioViewModel
 
 @Composable
 fun QuranSectionView(viewModel: QuranAudioViewModel) {
+    val langState by LocalizationManager.currentLanguage.collectAsState()
     val quranFiles by viewModel.quranFiles.collectAsState()
     val qarisList by viewModel.qarisList.collectAsState()
 
@@ -91,16 +93,16 @@ fun QuranSectionView(viewModel: QuranAudioViewModel) {
             }
         ) {
             Tab(selected = filterMode == "qari", onClick = { filterMode = "qari" }) {
-                Text("Reciters (القراء)", modifier = Modifier.padding(vertical = 12.dp), fontWeight = FontWeight.Bold, fontSize = 13.sp, color = if (filterMode == "qari") QuranPrimary else LightGrayText)
+                Text(LocalizationManager.get("tab_reciters"), modifier = Modifier.padding(vertical = 12.dp), fontWeight = FontWeight.Bold, fontSize = 13.sp, color = if (filterMode == "qari") QuranPrimary else LightGrayText)
             }
             Tab(selected = filterMode == "surah", onClick = { filterMode = "surah" }) {
-                Text("Surahs", modifier = Modifier.padding(vertical = 12.dp), fontWeight = FontWeight.Bold, fontSize = 13.sp, color = if (filterMode == "surah") QuranPrimary else LightGrayText)
+                Text(LocalizationManager.get("tab_surahs"), modifier = Modifier.padding(vertical = 12.dp), fontWeight = FontWeight.Bold, fontSize = 13.sp, color = if (filterMode == "surah") QuranPrimary else LightGrayText)
             }
             Tab(selected = filterMode == "completeness", onClick = { filterMode = "completeness" }) {
-                Text("Structure", modifier = Modifier.padding(vertical = 12.dp), fontWeight = FontWeight.Bold, fontSize = 13.sp, color = if (filterMode == "completeness") QuranPrimary else LightGrayText)
+                Text(LocalizationManager.get("tab_structure"), modifier = Modifier.padding(vertical = 12.dp), fontWeight = FontWeight.Bold, fontSize = 13.sp, color = if (filterMode == "completeness") QuranPrimary else LightGrayText)
             }
             Tab(selected = filterMode == "quality", onClick = { filterMode = "quality" }) {
-                Text("Audio Quality", modifier = Modifier.padding(vertical = 12.dp), fontWeight = FontWeight.Bold, fontSize = 13.sp, color = if (filterMode == "quality") QuranPrimary else LightGrayText)
+                Text(LocalizationManager.get("tab_quality_desc"), modifier = Modifier.padding(vertical = 12.dp), fontWeight = FontWeight.Bold, fontSize = 13.sp, color = if (filterMode == "quality") QuranPrimary else LightGrayText)
             }
         }
 
@@ -114,7 +116,7 @@ fun QuranSectionView(viewModel: QuranAudioViewModel) {
                         // Show all detected Qari cards
                         if (qarisList.isEmpty()) {
                             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                Text("No reciters detected yet. Please scan or generate.", color = LightGrayText, fontSize = 13.sp)
+                                Text(LocalizationManager.get("no_reciters"), color = LightGrayText, fontSize = 13.sp)
                             }
                         } else {
                             LazyColumn(
@@ -152,7 +154,7 @@ fun QuranSectionView(viewModel: QuranAudioViewModel) {
                                                     fontSize = 15.sp
                                                 )
                                                 Text(
-                                                    text = "$count recitation files offline",
+                                                    text = String.format(LocalizationManager.get("offline_files_count"), count),
                                                     color = LightGrayText,
                                                     fontSize = 12.sp
                                                 )
@@ -176,7 +178,7 @@ fun QuranSectionView(viewModel: QuranAudioViewModel) {
                             ) {
                                 Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = QuranPrimary)
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Back to Reciters", color = QuranPrimary, fontWeight = FontWeight.Bold)
+                                Text(LocalizationManager.get("back_reciters"), color = QuranPrimary, fontWeight = FontWeight.Bold)
                             }
                             Spacer(modifier = Modifier.height(10.dp))
                             Text(
@@ -205,7 +207,7 @@ fun QuranSectionView(viewModel: QuranAudioViewModel) {
                     val surahsList = quranFiles.filter { it.surahName != null }
                     if (surahsList.isEmpty()) {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text("No identified Surahs yet.", color = LightGrayText)
+                            Text(LocalizationManager.get("no_surahs_yet"), color = LightGrayText)
                         }
                     } else {
                         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -227,10 +229,10 @@ fun QuranSectionView(viewModel: QuranAudioViewModel) {
                     val partialClips = quranFiles.filter { !it.isComplete }
 
                     Column(modifier = Modifier.fillMaxSize()) {
-                        Text("Complete Surahs (${completeSurahs.size})", color = DynamicGold, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Text("${LocalizationManager.get("complete_surahs")} (${completeSurahs.size})", color = DynamicGold, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                         Spacer(modifier = Modifier.height(8.dp))
                         if (completeSurahs.isEmpty()) {
-                            Text("No complete surahs.", color = LightGrayText, fontSize = 12.sp, modifier = Modifier.padding(bottom = 12.dp))
+                            Text(LocalizationManager.get("no_complete_surahs"), color = LightGrayText, fontSize = 12.sp, modifier = Modifier.padding(bottom = 12.dp))
                         } else {
                             Box(modifier = Modifier.weight(1f)) {
                                 LazyColumn(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -249,10 +251,10 @@ fun QuranSectionView(viewModel: QuranAudioViewModel) {
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        Text("Clips & Portions (${partialClips.size})", color = QuranSecondary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Text("${LocalizationManager.get("partial_recitations")} (${partialClips.size})", color = QuranSecondary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                         Spacer(modifier = Modifier.height(8.dp))
                         if (partialClips.isEmpty()) {
-                            Text("No clips detected.", color = LightGrayText, fontSize = 12.sp)
+                            Text(LocalizationManager.get("no_clips"), color = LightGrayText, fontSize = 12.sp)
                         } else {
                             Box(modifier = Modifier.weight(1f)) {
                                 LazyColumn(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -276,7 +278,7 @@ fun QuranSectionView(viewModel: QuranAudioViewModel) {
                     val mediumQuality = quranFiles.filter { it.qualityKbps < 256 }
 
                     Column {
-                        Text("High Fidelity (256-320 kbps)", color = QuranPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Text(LocalizationManager.get("high_fidelity_title"), color = QuranPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                         Spacer(modifier = Modifier.height(8.dp))
                         Box(modifier = Modifier.weight(1f)) {
                             LazyColumn(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -292,7 +294,7 @@ fun QuranSectionView(viewModel: QuranAudioViewModel) {
                             }
                         }
                         Spacer(modifier = Modifier.height(16.dp))
-                        Text("Standard Fidelity (< 256 kbps)", color = LightGrayText, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Text(LocalizationManager.get("std_fidelity_title"), color = LightGrayText, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                         Spacer(modifier = Modifier.height(8.dp))
                         Box(modifier = Modifier.weight(1f)) {
                             LazyColumn(verticalArrangement = Arrangement.spacedBy(6.dp)) {
