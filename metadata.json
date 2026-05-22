@@ -1,0 +1,6 @@
+{
+  "name": "Quran Audio Manager AI",
+  "description": "An offline-first AI-powered audio manager that scans, automatically detects, organizes, and enhances Quran recitations alongside other audio files.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
